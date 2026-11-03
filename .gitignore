@@ -68,3 +68,9 @@ android/key.properties
 supabase/.temp/
 supabase/.branches/
 supabase_schema_parsed.json
+
+# Vercel CLI
+.vercel/
+
+.vercel
+.env*

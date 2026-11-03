@@ -1,0 +1,19 @@
+# Ignorar plataformas móviles y código fuente de tests
+android/
+ios/
+test/
+desing/
+.agents/
+.dart_tool/
+supabase/
+docs/
+
+# Ignorar artefactos de compilación excepto build/web
+build/*
+!build/web
+!build/web/**
+
+# Variables de entorno locales
+.env
+.env.*
+!.env.example
