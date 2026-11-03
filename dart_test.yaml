@@ -1,0 +1,4 @@
+tags:
+  supabase_integration:
+    description: "Tests de integración reales contra un proyecto Supabase de staging o local (`supabase start`)."
+    exclude_by_default: true
