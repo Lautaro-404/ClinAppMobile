@@ -1,0 +1,62 @@
+name: Despliegue Flutter Web a Vercel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'lib/**'
+      - 'web/**'
+      - 'assets/**'
+      - 'pubspec.yaml'
+      - 'vercel.json'
+      - '.vercelignore'
+      - '.github/workflows/deploy-web.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vercel-web
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Compilar y Desplegar Web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Instalar dependencias Flutter
+        run: flutter pub get
+
+      - name: Compilar Flutter Web (Release)
+        run: |
+          flutter build web --release \
+            --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+            --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}" \
+            --dart-define=APP_ENV=prod
+
+      - name: Configurar enlace de Vercel
+        run: |
+          mkdir -p .vercel
+          cat << 'EOF' > .vercel/project.json
+          {"projectId":"${{ secrets.VERCEL_PROJECT_ID }}","orgId":"${{ secrets.VERCEL_ORG_ID }}","projectName":"clinapp-mobile"}
+          EOF
+
+      - name: Desplegar a Vercel (Producción)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npx vercel deploy --prod --yes --token="$VERCEL_TOKEN"
